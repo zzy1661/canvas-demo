@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>canvas-连线动画</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <script>
+        //起点：10，20 终点：150，200
+        const [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] = (points = [
+            [200, 100],
+            [300, 200],
+            [200, 300],
+            [100, 200]
+        ]);
+
+        const canvas = document.querySelector("canvas");
+        const ctx = canvas.getContext("2d");
+        //目标：有一根线在这四个点里面游走
+        //   ctx.fillRect(0, 0, 400, 400);
+        //   points.forEach(([x, y]) => {
+        //     draawDot(x, y);
+        //   });
+
+        //变量：
+        const lineLength = 10; //线长为10
+        let startPoint = [x1, y1];//初始起点
+        let endPoint = null;//初始终点
+        drawLineMove();
+        // drawSuportLine(x1,y1,x2,y2)
+
+        function draawDot(x1, y1, r) {
+            ctx.save();
+            ctx.beginPath(); //不写会和线连起来
+            ctx.fillStyle = "red";
+            //绘制成矩形
+            ctx.arc(x1, y1, r ? r : 2, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+        }
+        function drawSuportLine(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.closePath();
+            ctx.strokeStyle = "rgba(255,255,255,0.1)";
+            ctx.stroke();
+
+        }
+        function drawLineMove() {
+            ctx.fillRect(0, 0, 400, 400);
+            points.forEach(([x, y]) => {
+                draawDot(x, y);
+            });
+            if (!endPoint) {
+                //第一段线
+                const endX =
+                    x1 +
+                    ((x2 - x1) * lineLength) /
+                    Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)); //初始末端x
+                const endY =
+                    y1 +
+                    ((y2 - y1) * lineLength) /
+                    Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)); //初始末端y
+                endPoint = [endX, endY];
+            }
+
+
+            drawLine(...startPoint, ...endPoint);
+            startPoint[0] = startPoint[0] + 1;
+            startPoint[1] = startPoint[1] + (1 * (y2 - y1) / (x2 - x1));
+            endPoint[0] = endPoint[0] +1;
+            endPoint[1] = endPoint[1] + (1 * (y2 - y1) / (x2 - x1));
+            window.requestAnimationFrame(drawLineMove)
+        }
+        function drawLine(x1, y1, x2, y2) {
+            ctx.save();
+            ctx.beginPath(); //不写每次都会重绘上次的线
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.arc(
+                x2,
+                y2,
+                1,
+                Math.atan((y2 - y1) / (x2 - x1)) + Math.PI / 2 - Math.PI,
+                Math.PI + (Math.atan((y2 - y1) / (x2 - x1)) + Math.PI / 2 - Math.PI)
+            );
+
+            // ctx.strokeStyle = "rgba(255,255,255,1)"
+            // ctx.stroke();
+            var gra = ctx.createRadialGradient(x2, y2, 0, x1, y1, lineLength);
+            gra.addColorStop(0, "rgba(255,255,255,1)");
+            gra.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.closePath();
+            ctx.fillStyle = gra;
+            ctx.fill();
+            ctx.restore();
+        }
+      // function drawLine() {
+      //     const PI = Math.PI;
+      //         gra.addColorStop(0, "rgba(255,255,255,1)");
+      //         gra.addColorStop(1, "rgba(0,0,0,0)");
+      //         ctx.save();
+      //         ctx.fillStyle = gra;
+      //         ctx.beginPath();
+      //         //流星头，二分之一圆
+      //         ctx.arc(x1, x2, 1, PI / 4, (5 * PI) / 4);
+      //         //绘制流星尾，三角形
+      //         ctx.lineTo(200, 100);
+      //         ctx.closePath();
+      //         ctx.fill();
+      //         ctx.restore();
+      // }
+      // // drawLine()
+      // const frame = () => {
+      //     //
+      //     ctx.fillRect(0, 0, 400, 400);
+      //     drawLine()
+      //     // requestAnimationFrame(frame);
+      // };
+
+      // frame();
+      // class Meteor {
+      //     constructor(ctx, x, h) {
+      //         this.ctx = ctx;
+      //         this.x = x;
+      //         this.y = 0;
+      //         this.h = h;
+      //         this.vx = -(4 + Math.random() * 4);
+      //         this.vy = -this.vx;
+      //         this.len = Math.random() * 300;
+      //     }
+
+      //     flow() {
+      //         //判定流星出界
+      //         if (this.x < -this.len || this.y > this.h + this.len) {
+      //             return false;
+      //         }
+      //         this.x += this.vx;
+      //         this.y += this.vy;
+      //         return true;
+      //     }
+
+      //     draw() {
+      //         let ctx = this.ctx,
+      //             //径向渐变，从流星头尾圆心，半径越大，透明度越高
+      //             gra = ctx.createRadialGradient(
+      //                 this.x,
+      //                 this.y,
+      //                 0,
+      //                 this.x,
+      //                 this.y,
+      //                 this.len
+      //             );
+
+      //         const PI = Math.PI;
+      //         gra.addColorStop(0, "rgba(255,255,255,1)");
+      //         gra.addColorStop(1, "rgba(0,0,0,0)");
+      //         ctx.save();
+      //         ctx.fillStyle = gra;
+      //         ctx.beginPath();
+      //         //流星头，二分之一圆
+      //         ctx.arc(this.x, this.y, 1, PI / 4, (5 * PI) / 4);
+      //         //绘制流星尾，三角形
+      //         ctx.lineTo(this.x + this.len, this.y - this.len);
+      //         ctx.closePath();
+      //         ctx.fill();
+      //         ctx.restore();
+      //     }
+      // }
+
+      // let canvas = document.getElementById("canvas"),
+      //     ctx = canvas.getContext("2d"),
+      //     width = window.innerWidth,
+      //     height = window.innerHeight,
+      //     meteors = [];
+
+      // canvas.width = width;
+      // canvas.height = height;
+
+      // //流星生成函数
+      // const meteorGenerator = () => {
+      //     //x位置偏移，以免经过月亮
+      //     let x = Math.random() * width + 800;
+      //     meteors.push(new Meteor(ctx, x, height));
+
+      //     //每隔随机时间，生成新流星
+      //     setTimeout(() => {
+      //         meteorGenerator();
+      //     }, Math.random() * 2000);
+      // };
+
+      // //每一帧动画生成函数
+      // const frame = () => {
+      //     //
+      //     ctx.fillRect(0, 0, width, height);
+      //     meteors.forEach((meteor, index, arr) => {
+      //         //如果流星离开视野之内，销毁流星实例，回收内存
+      //         if (meteor.flow()) {
+      //             meteor.draw();
+      //         } else {
+      //             arr.splice(index, 1);
+      //         }
+      //     });
+      //     requestAnimationFrame(frame);
+      // };
+
+      // meteorGenerator();
+      // frame();
+    </script>
+</body>
+
+</html>

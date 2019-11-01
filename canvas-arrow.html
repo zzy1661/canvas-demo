@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <script>
+      const canvas = document.querySelector("canvas");
+      const ctx = canvas.getContext("2d");
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drawArrowLine(10,20,10,100)
+      drawArrowLine(60,150,60,70)
+      drawArrowLine(50,200,300,200)
+      drawArrowLine(300,240,50,240)
+      //带点线的箭头
+      function drawArrowLine(x1,y1,x2,y2) {
+          if((x1>x2)||(y1>y2)){
+              var [x1,x2,y1,y2] = [x2,x1,y2,y1]
+          }
+        var startPoint,endPoint;
+        var space = 5;//点点间距5
+        // 不是横线就是竖线
+        if(y1===y2){
+            drawArrow(x1,y1,x1+space,y1-2,x1+space,y1+2)
+            drawArrow(x2,y2,x2-space,y2-2,x2-space,y2+2)
+             startPoint = [x1+space,y1]
+             endPoint = [x2-2*space,y2]
+             while(Math.abs(startPoint[0]-endPoint[0])>=1) {
+                startPoint[0] =startPoint[0]<endPoint[0]?(startPoint[0]+1):(startPoint[0]-1);
+                if(Math.abs(startPoint[0]-endPoint[0])%space===0) {
+                    drawDot(...startPoint)
+                }
+
+            }
+        }
+        if(x1===x2) {
+            drawArrow(x1,y1,x1+2,y1+space,x1-2,y1+space)
+            drawArrow(x2,y2,x2+2,y2-space,x2-2,y2-space)
+            startPoint = [x1,y1+space]
+            endPoint = [x2,y2-2*space]
+     
+            while(Math.abs(startPoint[1]-endPoint[1])>=1) {
+                startPoint[1] =startPoint[1]<endPoint[1]?(startPoint[1]+1):(startPoint[1]-1);
+                if(Math.abs(startPoint[1]-endPoint[1])%space===0) {
+                    console.log(11)
+                    drawDot(...startPoint)
+                }
+
+            }
+        }
+      }
+      //箭头
+      function drawArrow(x1,y1,x2,y2,x3,y3) {
+        ctx.beginPath(); 
+        ctx.moveTo(x1,y1)
+        ctx.lineTo(x2,y2);
+        ctx.lineTo(x3,y3)
+        ctx.closePath()
+        ctx.fillStyle = "rgba(255,255,255,1)";
+        ctx.fill()
+      }
+      //点
+      function drawDot(x1,y1,r) {
+            ctx.beginPath(); //不写会和线连起来
+            ctx.fillStyle="rgba(255,255,255,1)";
+            //绘制成矩形
+            ctx.arc(x1,y1,r?r:1,0,2*Math.PI);
+            ctx.fill()
+            ctx.closePath()
+        }
+    </script>
+  </body>
+</html>
