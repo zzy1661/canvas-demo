@@ -26,13 +26,11 @@
 
         const canvas = document.querySelector("canvas");
         const ctx = canvas.getContext("2d");
-        const speed = 1;
-        //目标：有一根线在这四个点里面游走
+        const speed = 1; //速度
           ctx.fillRect(0, 0, 400, 400);
           points.forEach(([x, y]) => {
             drawDot(x, y);
           });
-        //   drawLine(x1,y1,x2,y2)
           lineMove(points)
           function lineMove(points) {
               if(points.length<2) {
@@ -69,6 +67,7 @@
             ctx.save();
             ctx.beginPath(); //不写每次都会重绘上次的线
             ctx.lineCap="round";
+            ctx.lineJoin="round";
 
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
