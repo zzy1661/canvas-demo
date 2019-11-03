@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <script>
+      const canvas = document.querySelector("canvas");
+      const ctx = canvas.getContext("2d");
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.lineWidth = 1;
+
+      scan(50,  200,100, 100,200,4,1.2);
+      function drawLine(x1, y1, x2, y2) {
+        ctx.save();
+        var grd = ctx.createLinearGradient(x1, y1, x2, y2);
+        grd.addColorStop(0, "rgba(255,255,255,0)");
+        grd.addColorStop(0.3, "rgba(255,255,255,1)");
+        grd.addColorStop(0.7, "rgba(255,255,255,1)");
+        grd.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.strokeStyle = grd;
+        for (let i = 0; i < 5; i++) {
+          //重复5次，增亮颜色
+          ctx.beginPath(); //不写每次都会重绘上次的线
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+          ctx.closePath();
+        }
+        ctx.restore();
+      }
+      //线条起点x,终点x,初始y，初始y和扫描区域起点终点y,扫描次数,方向
+      function scan(x1, x2, y, ymin,ymax, count,speed,direction) {
+        direction = direction||'down'
+        if (count > 0) {
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if(direction==='down') {
+                if(y<=ymax) {
+                    y+=speed;
+                }else {
+                    y-=speed;
+                    direction='up'
+                    count--;
+                }
+            } else {
+                if(y>=ymin) {
+                    y-=speed;
+                }else {
+                    y+=speed;
+                    direction='down'
+                    count--;
+                }
+            }
+          drawLine(x1, y, x2, y);
+          window.requestAnimationFrame(function() {
+            scan(x1, x2, y, ymin, ymax, count,speed,direction);
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
