@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>canvas-连线动画</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <script>
+        //起点：10，20 终点：150，200
+        const  points = [
+            [200, 100], //上
+            [300, 200], //右
+            [100, 200], //左
+            [200, 100], //上
+            [200, 300], //下
+            [100, 200], //左
+            [300, 200], //右
+            [200, 300]
+         
+        ];
+
+        const canvas = document.querySelector("canvas");
+        const ctx = canvas.getContext("2d");
+        const speed = 1;
+        //目标：有一根线在这四个点里面游走
+          ctx.fillRect(0, 0, 400, 400);
+          points.forEach(([x, y]) => {
+            drawDot(x, y);
+          });
+        //   drawLine(x1,y1,x2,y2)
+          lineMove(points)
+          function lineMove(points) {
+              if(points.length<2) {
+                  return;
+              }
+            const [[x1, y1], [x2, y2]] = points;
+            let dx = x2-x1;
+            let dy = y2-y1;
+            if(Math.abs(dx)<1&&Math.abs(dy)<1) {
+                points = points.slice(1);
+                lineMove(points)
+                return;
+            }
+            let x=x1,y=y1;//线条绘制过程中的终点
+            if(dx===0) {
+                x = x2,y+=speed*dy/Math.abs(dy);
+            }else if(dy===0) {
+                x +=speed*dx/Math.abs(dx);y=y2;
+            }else if(Math.abs(dx)>=1) {
+                let rate = dy/dx;
+                x +=speed*dx/Math.abs(dx);
+                y+=speed*rate*dx/Math.abs(dy)
+            }
+            drawLine(x1,y1,x,y);
+            points[0] = [x,y]
+            window.requestAnimationFrame(function() {
+                lineMove(points)
+            })
+          }
+
+
+
+          function drawLine(x1, y1, x2, y2) {
+            ctx.save();
+            ctx.beginPath(); //不写每次都会重绘上次的线
+            ctx.lineCap="round";
+
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.closePath();
+            ctx.strokeStyle = 'rgba(255,255,255,1)'
+            ctx.stroke()
+            ctx.restore();
+        }
+
+        function drawDot(x1, y1, r) {
+            ctx.save();
+            ctx.beginPath(); //不写会和线连起来
+            ctx.fillStyle = "red";
+            //绘制成矩形
+            ctx.arc(x1, y1, r ? r : 2, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+        }
+      
+      
+    </script>
+</body>
+
+</html>
