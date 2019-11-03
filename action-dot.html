@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+        <canvas id="canvas"></canvas>
+
+
+    <script>
+        const img = new Image();
+
+        img.onload = function () {
+            const canvas = document.querySelector("#canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            dotAnimate(canvas);
+        };
+
+        img.src = "./imgs/demo.png";
+
+        function dotAnimate(canvas) {
+          
+            const ctx = canvas.getContext("2d");
+            const points = [[110, 177], [135, 162], [180, 169], [196, 185]];
+            const dots = new Set();
+            class Dot {
+                constructor(x, y, rmax, count) { //圆点，最大直径，闪烁次数（必须为偶数，否则消失的时候比较突兀）
+                    this.x = x;
+                    this.y = y;
+                    this.rmax = rmax;
+                    this.r = 0;
+                    this.speed = 0.1;
+                    this.rafId = null;
+                    this.count = count;
+                    this.animate('big');
+                    dots.add(this)
+                }
+                animate(flag) {
+                    if (this.count <= 0) {
+                        dots.delete(this)
+                        console.log(11)
+                        window.cancelAnimationFrame(this.rafId)
+                        return;
+                    }
+                    if (flag === 'big') { //变大
+                        if (this.r <= this.rmax) {
+                            this.r += this.speed;
+                        } else {
+                            this.r -= this.speed;
+                            flag = 'small'
+                            this.count--
+                        }
+                    } else { //变小
+                        if (this.r >= 0) {
+                            this.r -= this.speed;
+                        } else {
+                            this.r += this.speed;
+                            flag = 'big'
+                            this.count--
+                        }
+                    }
+                    this.rafId = window.requestAnimationFrame(() => {
+                        this.animate(flag)
+                    })
+
+                }
+
+            }
+
+
+
+            for (let i = 0; i < points.length; i++) {
+                setTimeout(function () {
+                    new Dot(points[i][0], points[i][1], 4, 10)
+                }, 200 * i)
+
+            }
+            setTimeout(() => {
+                drawDots(dots)
+            }, 100);
+
+
+            function drawDots(dots) {
+                if (dots.size === 0) {
+                    return;
+                }
+                ctx.save()
+                ctx.drawImage(img, 0, 0);
+                for (let dot of dots) {
+                    drawDot(dot)
+                }
+                window.requestAnimationFrame(function () {
+                    drawDots(dots)
+                })
+                ctx.restore()
+            }
+            function drawDot(dot) {
+                ctx.save()
+                ctx.beginPath(); //不写会和线连起来
+                ctx.fillStyle = "rgb(255,255,255)";
+                //绘制
+                ctx.arc(dot.x, dot.y, dot.r.toFixed(2), 0, 2 * Math.PI);
+                ctx.fill()
+                ctx.closePath();
+                ctx.restore()
+
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>
